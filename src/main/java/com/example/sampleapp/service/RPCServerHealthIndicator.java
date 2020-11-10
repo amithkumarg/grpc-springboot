@@ -24,6 +24,7 @@ public class RPCServerHealthIndicator implements HealthIndicator {
                 .build());
   }
 
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   @Override
   public Health health() {
     Health result;

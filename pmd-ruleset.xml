@@ -40,4 +40,9 @@
             <property name="violationSuppressXPath" value="//Annotation/MarkerAnnotation/Name[@Image='Test']"/>
         </properties>
     </rule>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod">
+        <properties>
+            <property name="ignoredAnnotations" value="java.lang.Deprecated|org.springframework.test.context.DynamicPropertySource" />
+        </properties>
+    </rule>
 </ruleset>

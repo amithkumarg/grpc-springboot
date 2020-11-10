@@ -13,7 +13,6 @@ import com.example.sampleapp.generated.grpc.EmployeeServiceGrpc;
 import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -24,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"grpc.port=0"})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SuppressWarnings("PMD.JUnitTestContainsTooManyAsserts")
+@SuppressWarnings({"PMD.JUnitTestContainsTooManyAsserts", "ResultOfMethodCallIgnored"})
 class EmployeeRPCServiceIT extends SampleAppApplicationTests {
   @Autowired private EmployeeRepo employeeRepo;
   private EmployeeServiceGrpc.EmployeeServiceBlockingStub blockingStub;

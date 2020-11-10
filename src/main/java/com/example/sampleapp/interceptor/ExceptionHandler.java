@@ -24,7 +24,7 @@ public class ExceptionHandler implements ServerInterceptor {
     return new ExceptionsListener<>(listener, serverCall, metadata);
   }
 
-  private class ExceptionsListener<ReqT, RespT>
+  private static class ExceptionsListener<ReqT, RespT>
       extends ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT> {
     private final ServerCall<ReqT, RespT> serverCall;
     private final Metadata metadata;
