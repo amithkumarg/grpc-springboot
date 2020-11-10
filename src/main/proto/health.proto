@@ -1,0 +1,9 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package example.sampleapp;
+option java_package = "com.example.sampleapp.generated.grpc";
+option java_multiple_files = true;
+
+service HealthCheckService{
+  rpc checkHealth(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

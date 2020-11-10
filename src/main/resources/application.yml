@@ -1,0 +1,22 @@
+server.port: ${PORT:8080}
+grpc.port: ${RPCPORT:6565}
+management.endpoints.web.exposure.include: "*"
+management.endpoint.health.show-details: always
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties.hibernate.dialect: org.hibernate.dialect.SQLServer2012Dialect
+  datasource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      connectionTimeout: 120000
+      idleTimeout: 600000
+      maxLifeTime: 1800000
+      maximumPoolSize: 90
+      minimumIdle: 10

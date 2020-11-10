@@ -1,0 +1,165 @@
+plugins {
+    id 'java'
+    // Generate IntelliJ IDEA's .idea & .iml project files
+    id 'idea'
+    id 'maven-publish'
+    id 'jacoco'
+    id 'org.sonarqube' version "${sonarqubePluginVersion}"
+    id 'org.springframework.boot' version "${springbootPluginVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagementPluginVersion}"
+    id 'com.google.protobuf' version "${protobufPluginVersion}"
+    id 'checkstyle'
+    id "com.github.spotbugs" version "${spotbugsPluginVersion}"
+    id 'pmd'
+    id 'org.ajoberstar.reckon' version "${reckonVersion}"
+}
+
+group = 'com.example'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "io.github.lognet:grpc-spring-boot-starter:${grpcstarterVersion}"
+    implementation "org.apache.commons:commons-lang3:${commonslangVersion}"
+    runtimeOnly "com.microsoft.sqlserver:mssql-jdbc"
+    compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugsVersion}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugsVersion}"
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mssqlserver'
+    testImplementation "org.mockito:mockito-inline:+"
+    spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${findsecbugsVersion}"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+def jacocoExclude = ['**/generated/**', '**/entity/**', "**/SampleAppApplication.**"]
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.enabled = true //required for sonarqube
+    }
+    afterEvaluate {
+        getClassDirectories().setFrom(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExclude)
+        })
+    }
+}
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.0
+            }
+        }
+    }
+    afterEvaluate {
+        getClassDirectories().setFrom(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExclude)
+        })
+    }
+}
+check {
+    dependsOn jacocoTestCoverageVerification
+}
+sonarqube {
+    properties {
+        property "sonar.exclusions", jacocoExclude
+    }
+}
+
+System.setProperty("org.checkstyle.google.suppressionfilter.config", project.projectDir.toString() + "/checkstyle-suppressions.xml")
+checkstyle {
+    toolVersion = checkstyleVersion
+    configFile = file("/google_checks.xml")
+    ignoreFailures = false
+    showViolations = false
+    maxWarnings = 0
+}
+
+spotbugs {
+    showStackTraces = true
+    showProgress = true
+    excludeFilter = file('spotbugs-exclude.xml')
+}
+
+tasks.matching { task -> task.name.startsWith('spotbugs') }.forEach {
+    it.reports {
+        html.enabled = true
+        xml.enabled = false
+        // spotbugs does not allow to generate a xml and html report at once https://github.com/spotbugs/spotbugs/issues/857
+    }
+}
+
+pmd {
+    toolVersion = pmdVersion
+    ruleSetFiles = files('pmd-ruleset.xml') // Pmd config location
+    ruleSets = []
+}

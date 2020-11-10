@@ -1,0 +1,21 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package example.sampleapp;
+option java_package = "com.example.sampleapp.generated.grpc";
+option java_multiple_files = true;
+
+message EmployeeDetails{
+  int32 employeeId = 1;
+  string employeeName = 2;
+  google.protobuf.Int32Value birthYear = 3;
+  google.protobuf.StringValue aliasName = 4;
+  int32 joiningYear = 5;
+}
+
+message EmployeeIdentifier {
+  int32 employeeId = 1;
+}
+
+service EmployeeService{
+  rpc findById(EmployeeIdentifier) returns (EmployeeDetails);
+}
