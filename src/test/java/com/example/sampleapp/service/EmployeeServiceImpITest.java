@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class EmployeeServiceImpITest {
   @Mock private EmployeeRepo employeeRepo;
 
-  @InjectMocks private final EmployeeServiceImpl subject = new EmployeeServiceImpl();
+  @InjectMocks private EmployeeServiceImpl subject;
 
   @Test
   @SuppressWarnings("unchecked")

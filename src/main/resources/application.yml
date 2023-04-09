@@ -1,5 +1,5 @@
 server.port: ${PORT:8080}
-grpc.port: ${RPCPORT:6565}
+grpc.port: ${RPC_PORT:6565}
 management.endpoints.web.exposure.include: "*"
 management.endpoint.health.show-details: always
 spring:

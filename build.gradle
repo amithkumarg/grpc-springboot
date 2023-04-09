@@ -32,13 +32,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation "io.github.lognet:grpc-spring-boot-starter:${grpcstarterVersion}"
-    implementation "org.apache.commons:commons-lang3:${commonslangVersion}"
+    implementation "org.apache.commons:commons-lang3"
+    implementation "io.micrometer:micrometer-tracing-bridge-otel"
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp"
+    //NOTE: Keep this version in sync with opentelemetry-instrumentation-api-semconv coming transitively through micrometer
+    implementation "io.opentelemetry.instrumentation:opentelemetry-grpc-1.6:1.19.2-alpha"
     runtimeOnly "com.microsoft.sqlserver:mssql-jdbc"
     compileOnly 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugsVersion}"
     testCompileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugsVersion}"
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -57,12 +62,12 @@ dependencyManagement {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 reckon {
-    scopeFromProp()
-    snapshotFromProp()
+    stages('milestone', 'rc', 'final')
+    snapshots()
 }
 
 test {
@@ -103,7 +108,7 @@ def jacocoExclude = ['**/generated/**', '**/entity/**', "**/SampleAppApplication
 jacocoTestReport {
     dependsOn test // tests are required to run before generating the report
     reports {
-        xml.enabled = true //required for sonarqube
+        xml.required = true //required for sonarqube
     }
     afterEvaluate {
         getClassDirectories().setFrom(classDirectories.files.collect {
