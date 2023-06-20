@@ -2,18 +2,15 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{ISO8601} %-5p [%X{req.traceId} %X{req.spanId} %X{req.ssoId}] --- [%t] %c{1} %line -
+            <pattern>%d{ISO8601} %-5p [%X{traceId} %X{spanId}] --- [%t] %c{1} %line -
                 %replace(%msg){'[\r\n]+|\n', ' '}%n
             </pattern>
         </encoder>
     </appender>
-    <logger name="com.example" level="INFO">
+    <logger name="com.example" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org" level="ERROR">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
